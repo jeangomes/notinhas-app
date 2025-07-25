@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'user'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://notinhas-app.juca.dev.br'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
