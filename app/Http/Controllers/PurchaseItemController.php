@@ -20,7 +20,7 @@ class PurchaseItemController extends Controller
             ->join('purchases', 'purchase_id','=','purchases.id')
             //product_name
             ->when($role, function ($query, string $role) {
-                    $query->where('product_name', 'ilike', '%'.$role.'%');
+                    $query->where('product_name', 'like', '%'.$role.'%');
                 })
             ->orderBy('product_name')
             ->orderByRaw($request->input('order_by', 'purchased_at'))->paginate(50);
