@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Purchase;
 use App\Services\ProcessDataPurchase;
+use DateTime;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +28,7 @@ class PurchaseController extends Controller
                 $query->whereDate('purchased_at', '=', $date);
             })
             ->when($store, function ($query, string $store) {
-                $query->where('store', 'ilike', '%'.$store.'%');
+                $query->whereRaw('LOWER(store) like ?', ['%' . strtolower($store) . '%']);
             })
             ->when($nfce, function ($query, string $nfce) {
                 $query->where('nfce_key_access', '=', $nfce);
@@ -53,13 +54,16 @@ class PurchaseController extends Controller
         //return view('purchase.show', ['purchase' => $purchase]);
     }
 
-    public function store(Request $request)
+    /**
+     * @throws Exception
+     */
+    public function store(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
             'nfce_key_access' => ['required', 'unique:purchases'],
         ]);
-        DB::transaction(function () use ($request) {
-            $purchase = new Purchase();
+        $purchase = new Purchase();
+        DB::transaction(function () use ($purchase, $request) {
             $purchase->store = strtoupper($request->input('store'));
             $purchase->purchased_at = $request->input('purchased_at');
             $purchase->paid_at = $request->input('purchased_at');
@@ -72,10 +76,14 @@ class PurchaseController extends Controller
 
             $purchase->items()->createMany($recordsProcessed);
         });
-        //return redirect('/purchase');
+
+        if ($purchase->exists) {
+            return response()->json([
+                'purchased_at' => (new DateTime($purchase->purchased_at))->format('Y-m-d')
+            ], 201);
+        }
         return response()->json([
-            'name' => 'Abigail',
-            'state' => 'CA',
-        ], 201);
+            'erro' => 'Não criado',
+        ], 400);
     }
 }
