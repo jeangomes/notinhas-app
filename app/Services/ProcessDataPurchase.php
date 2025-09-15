@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Purchase;
-
 class ProcessDataPurchase
 {
 
@@ -63,7 +61,7 @@ class ProcessDataPurchase
             $totalPrice = (float)str_replace(',', '.', preg_replace('/\s+/', '', $matches[6])); // Remove spaces and replace ',' with '.'
 
             return [
-                "product_name" => $productName,
+                "product_name" => strtoupper($productName),
                 "product_code" => $productCode,
                 "quantity" => $quantity,
                 "unit_measure" => $unitOfMeasurement,
@@ -73,7 +71,6 @@ class ProcessDataPurchase
         } else {
             echo "Failed to extract data from the input string.\n";
             exit();
-            return [];
         }
     }
 }

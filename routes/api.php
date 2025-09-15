@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ListStoresController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PurchaseController;
@@ -10,7 +11,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::resource('purchase', PurchaseController::class)->middleware('auth:sanctum');
-Route::get('purchase-items', PurchaseItemController::class)->middleware('auth:sanctum');
 
-Route::resource('nfce-key-or-url', NfceController::class)->middleware('auth:sanctum');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('purchase', PurchaseController::class);
+    Route::get('purchase-items', PurchaseItemController::class);
+
+    Route::resource('nfce-key-or-url', NfceController::class);
+    Route::get('stores', ListStoresController::class);
+});
